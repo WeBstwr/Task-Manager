@@ -1,3 +1,7 @@
+@php
+    $isAdmin = false; // Change to false to test regular user UI
+@endphp
+
 @extends('layouts.app')
 
 @section('title', 'Dashboard - Task Manager')
@@ -28,10 +32,18 @@
         </div>
     </div>
 
-    <div class="dashboard-actions">
-        <a href="{{ route('tasks.create') }}" class="btn">Create New Task</a>
-        <a href="{{ route('tasks.index') }}" class="btn btn-secondary">View All Tasks</a>
-    </div>
+    @if($isAdmin)
+        <!-- Admin Dashboard Actions -->
+        <div class="dashboard-actions">
+            <a href="{{ route('tasks.create') }}" class="btn">Create New Task</a>
+            <a href="{{ route('tasks.index') }}" class="btn btn-secondary">View All Tasks</a>
+        </div>
+    @else
+        <!-- Regular User Dashboard Actions -->
+        <div class="dashboard-actions">
+            <a href="{{ route('tasks.index') }}" class="btn">View My Tasks</a>
+        </div>
+    @endif
 
     <div class="recent-tasks">
         <h3>Recent Tasks</h3>
@@ -40,38 +52,41 @@
         </div>
     </div>
 
-    <div class="task-form-section">
-        <h3>Quick Add Task</h3>
-        <form id="task-form" class="task-form">
-            <div class="form-group">
-                <label for="title">Task Title</label>
-                <input type="text" id="title" name="title" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="description">Description</label>
-                <textarea id="description" name="description" rows="3"></textarea>
-            </div>
-            
-            <div class="form-row">
+    @if($isAdmin)
+        <!-- Admin Only: Quick Add Task Form -->
+        <div class="task-form-section">
+            <h3>Quick Add Task</h3>
+            <form id="task-form" class="task-form">
                 <div class="form-group">
-                    <label for="priority">Priority</label>
-                    <select id="priority" name="priority">
-                        <option value="low">Low</option>
-                        <option value="medium" selected>Medium</option>
-                        <option value="high">High</option>
-                    </select>
+                    <label for="title">Task Title</label>
+                    <input type="text" id="title" name="title" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="due_date">Due Date</label>
-                    <input type="date" id="due_date" name="due_date">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" rows="3"></textarea>
                 </div>
-            </div>
-            
-            <button type="submit" class="btn">Add Task</button>
-        </form>
-    </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="priority">Priority</label>
+                        <select id="priority" name="priority">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="due_date">Due Date</label>
+                        <input type="date" id="due_date" name="due_date">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn">Add Task</button>
+            </form>
+        </div>
+    @endif
 </div>
 @endsection
 

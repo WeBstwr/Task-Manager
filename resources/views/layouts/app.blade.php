@@ -20,21 +20,19 @@
                     <h1>Task Manager</h1>
                 </div>
                 <ul class="nav-links">
-                    <li><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                    <li><a href="{{ route('tasks.index') }}">Tasks</a></li>
-                    <li><a href="{{ route('tasks.create') }}">New Task</a></li>
-                    @auth
-                        <li><a href="{{ route('profile') }}">Profile</a></li>
-                        <li>
-                            <form method="POST" action="{{ route('logout') }}" style="display: inline;">
-                                @csrf
-                                <button type="submit" class="btn-link">Logout</button>
-                            </form>
-                        </li>
+                    @if(isset($isAdmin) && $isAdmin)
+                        <li><a href="#">Manage Users</a></li>
+                        <li><a href="#">Assign Tasks</a></li>
+                        <li><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li><a href="{{ route('tasks.index') }}">All Tasks</a></li>
+                        <li><a href="#">Profile</a></li>
+                        <li><a href="#">Logout</a></li>
                     @else
-                        <li><a href="{{ route('login') }}">Login</a></li>
-                        <li><a href="{{ route('register') }}">Register</a></li>
-                    @endauth
+                        <li><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li><a href="{{ route('tasks.index') }}">My Tasks</a></li>
+                        <li><a href="#">Profile</a></li>
+                        <li><a href="#">Logout</a></li>
+                    @endif
                 </ul>
             </nav>
         </div>
@@ -84,4 +82,4 @@
     <!-- Additional JavaScript -->
     @yield('scripts')
 </body>
-</html> 
+</html>

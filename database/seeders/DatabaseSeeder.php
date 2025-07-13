@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Task;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -13,11 +14,56 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Create admin user
+        $admin = User::factory()->create([
+            'name' => 'Admin User',
+            'email' => 'admin@example.com',
+            'role' => 'admin',
+        ]);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Create regular users
+        $user1 = User::factory()->create([
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'role' => 'user',
+        ]);
+
+        $user2 = User::factory()->create([
+            'name' => 'Jane Smith',
+            'email' => 'jane@example.com',
+            'role' => 'user',
+        ]);
+
+        // Create sample tasks
+        Task::create([
+            'title' => 'Complete Project Documentation',
+            'description' => 'Write comprehensive documentation for the new project features',
+            'status' => 'pending',
+            'priority' => 'high',
+            'assigned_to' => $user1->id,
+            'created_by' => $admin->id,
+            'due_date' => now()->addDays(7),
+        ]);
+
+        Task::create([
+            'title' => 'Review Code Changes',
+            'description' => 'Review and approve recent code changes in the main branch',
+            'status' => 'in_progress',
+            'priority' => 'medium',
+            'assigned_to' => $user2->id,
+            'created_by' => $admin->id,
+            'due_date' => now()->addDays(5),
+        ]);
+
+        Task::create([
+            'title' => 'Update User Interface',
+            'description' => 'Update the user interface based on new design requirements',
+            'status' => 'completed',
+            'priority' => 'low',
+            'assigned_to' => $user1->id,
+            'created_by' => $admin->id,
+            'due_date' => now()->subDays(2),
+            'completed_at' => now()->subDays(1),
         ]);
     }
 }

@@ -7,9 +7,9 @@ Route::get('/', function () {
     return view('pages.dashboard');
 })->name('dashboard');
 
-// Task routes (placeholder routes for now)
+// Task routes
 Route::get('/tasks', function () {
-    return view('pages.dashboard');
+    return view('pages.tasks');
 })->name('tasks.index');
 
 Route::get('/tasks/create', function () {

@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -44,5 +45,63 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Check if the user is an admin.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Check if the user is a regular user.
+     */
+    public function isUser(): bool
+    {
+        return $this->role === 'user';
+    }
+
+    /**
+     * Get tasks assigned to this user.
+     */
+    public function assignedTasks()
+    {
+        return $this->hasMany(Task::class, 'assigned_to');
+    }
+
+    /**
+     * Get tasks created by this user.
+     */
+    public function createdTasks()
+    {
+        return $this->hasMany(Task::class, 'created_by');
+    }
+
+    /**
+     * Get pending tasks assigned to this user.
+     */
+    public function pendingTasks()
+    {
+        return $this->assignedTasks()->where('status', 'pending');
+    }
+
+    /**
+     * Get completed tasks assigned to this user.
+     */
+    public function completedTasks()
+    {
+        return $this->assignedTasks()->where('status', 'completed');
+    }
+
+    /**
+     * Get overdue tasks assigned to this user.
+     */
+    public function overdueTasks()
+    {
+        return $this->assignedTasks()
+            ->where('due_date', '<', now())
+            ->where('status', '!=', 'completed');
     }
 }
