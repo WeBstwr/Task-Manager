@@ -9,8 +9,8 @@ use Illuminate\Support\Facades\Route;
 
 // Default home route to dashboard
 Route::get('/', function () {
-    return view('pages.dashboard');
-})->name('dashboard');
+    return redirect()->route('dashboard');
+});
 
 // Placeholder route for tasks.index
 Route::get('/tasks', function () {
@@ -71,6 +71,11 @@ Route::middleware(['auth', 'isAdmin'])->group(function () {
     Route::get('/admin/users/{user}/edit', [\App\Http\Controllers\UserManagementController::class, 'edit'])->name('admin.users.edit');
     Route::put('/admin/users/{user}', [\App\Http\Controllers\UserManagementController::class, 'update'])->name('admin.users.update');
     Route::delete('/admin/users/{user}', [\App\Http\Controllers\UserManagementController::class, 'destroy'])->name('admin.users.destroy');
+});
+
+Route::get('/logtest', function () {
+    \Log::info('Log test from route');
+    return 'Logged!';
 });
 
 require __DIR__.'/auth.php';

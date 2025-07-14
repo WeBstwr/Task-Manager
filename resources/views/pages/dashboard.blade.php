@@ -5,7 +5,12 @@
 @section('content')
 <div class="dashboard">
     <div class="dashboard-header">
-        <h2>Welcome to Your Task Manager</h2>
+        <h2>
+            Welcome to Your Task Manager
+            @auth
+                , {{ auth()->user()->name }}
+            @endauth
+        </h2>
         <p>Organize your tasks and boost your productivity</p>
     </div>
 

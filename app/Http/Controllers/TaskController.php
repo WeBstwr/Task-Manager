@@ -52,6 +52,12 @@ class TaskController extends Controller
             'due_date' => $validated['due_date'] ?? null,
         ]);
 
+        // Notify the assigned user
+        $user = User::find($validated['assigned_to']);
+        if ($user) {
+            $user->notify(new \App\Notifications\TaskAssigned($task));
+        }
+
         return Redirect::route('admin.tasks.index')->with('success', 'Task created and assigned successfully.');
     }
 
@@ -87,6 +93,14 @@ class TaskController extends Controller
             'due_date' => $validated['due_date'] ?? null,
             'completed_at' => $validated['status'] === 'completed' ? now() : null,
         ]);
+
+        // Notify the user if reassigned
+        if ($task->wasChanged('assigned_to')) {
+            $user = User::find($validated['assigned_to']);
+            if ($user) {
+                $user->notify(new \App\Notifications\TaskAssigned($task));
+            }
+        }
 
         return Redirect::route('admin.tasks.index')->with('success', 'Task updated successfully.');
     }
