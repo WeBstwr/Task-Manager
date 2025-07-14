@@ -21,7 +21,7 @@
     @if(auth()->check() && auth()->user()->isAdmin())
         <!-- Admin: Task Management -->
         <div class="admin-controls">
-            <a href="{{ route('tasks.create') }}" class="btn">Create New Task</a>
+            <a href="{{ route('admin.tasks.create') }}" class="btn">Create New Task</a>
             <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">Manage Users</a>
         </div>
         <div class="tasks-list">
@@ -43,8 +43,12 @@
                             <span>Created by: {{ $task->creator_name ?? 'Admin' }}</span>
                         </div>
                         <div class="task-actions">
-                            <button class="btn btn-small">Edit</button>
-                            <button class="btn btn-small btn-secondary">Reassign</button>
+                            <a href="{{ route('admin.tasks.edit', $task) }}" class="btn btn-small">Edit</a>
+                            <form action="{{ route('admin.tasks.destroy', $task) }}" method="POST" style="display:inline-block;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-small btn-danger" onclick="return confirm('Are you sure you want to delete this task?');">Delete</button>
+                            </form>
                         </div>
                     </div>
                 @endforeach
@@ -70,12 +74,16 @@
                             <span>Assigned by: {{ $task->creator_name ?? 'Admin' }}</span>
                         </div>
                         <div class="task-actions">
-                            <select class="status-select">
-                                <option value="pending" @if($task->status == 'pending') selected @endif>Pending</option>
-                                <option value="in_progress" @if($task->status == 'in_progress') selected @endif>In Progress</option>
-                                <option value="completed" @if($task->status == 'completed') selected @endif>Completed</option>
-                            </select>
-                            <button class="btn btn-small">Update Status</button>
+                            <form method="POST" action="{{ route('tasks.status.update', $task) }}" style="display:inline-flex;align-items:center;gap:0.5rem;">
+                                @csrf
+                                @method('PATCH')
+                                <select name="status" class="status-select">
+                                    <option value="pending" @if($task->status == 'pending') selected @endif>Pending</option>
+                                    <option value="in_progress" @if($task->status == 'in_progress') selected @endif>In Progress</option>
+                                    <option value="completed" @if($task->status == 'completed') selected @endif>Completed</option>
+                                </select>
+                                <button type="submit" class="btn btn-small">Update Status</button>
+                            </form>
                         </div>
                     </div>
                 @endforeach

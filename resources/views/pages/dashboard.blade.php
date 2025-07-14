@@ -31,7 +31,7 @@
     @if(auth()->check() && auth()->user()->isAdmin())
         <!-- Admin Dashboard Actions -->
         <div class="dashboard-actions">
-            <a href="{{ route('tasks.create') }}" class="btn">Create New Task</a>
+            <a href="{{ route('admin.tasks.create') }}" class="btn">Create New Task</a>
             <a href="{{ route('tasks.index') }}" class="btn btn-secondary">View All Tasks</a>
         </div>
     @else
@@ -43,45 +43,20 @@
 
     <div class="recent-tasks">
         <h3>Recent Tasks</h3>
-        <div id="task-list">
-            <!-- Tasks will be loaded here via JavaScript -->
-        </div>
+        <ul>
+            @forelse($recentTasks as $task)
+                <li>
+                    {{ $task->title }} ({{ ucfirst(str_replace('_', ' ', $task->status)) }})
+                    - Due: {{ $task->due_date ? $task->due_date->format('Y-m-d') : '-' }}
+                </li>
+            @empty
+                <li>No recent tasks found.</li>
+            @endforelse
+        </ul>
     </div>
 
     @if(auth()->check() && auth()->user()->isAdmin())
-        <!-- Admin Only: Quick Add Task Form -->
-        <div class="task-form-section">
-            <h3>Quick Add Task</h3>
-            <form id="task-form" class="task-form">
-                <div class="form-group">
-                    <label for="title">Task Title</label>
-                    <input type="text" id="title" name="title" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="description">Description</label>
-                    <textarea id="description" name="description" rows="3"></textarea>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="priority">Priority</label>
-                        <select id="priority" name="priority">
-                            <option value="low">Low</option>
-                            <option value="medium" selected>Medium</option>
-                            <option value="high">High</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="due_date">Due Date</label>
-                        <input type="date" id="due_date" name="due_date">
-                    </div>
-                </div>
-                
-                <button type="submit" class="btn">Add Task</button>
-            </form>
-        </div>
+        
     @endif
 </div>
 @endsection

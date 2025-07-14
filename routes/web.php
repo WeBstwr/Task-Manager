@@ -14,24 +14,55 @@ Route::get('/', function () {
 
 // Placeholder route for tasks.index
 Route::get('/tasks', function () {
-    return view('pages.tasks');
+    $tasks = [];
+    if (auth()->check()) {
+        if (auth()->user()->isAdmin()) {
+            $tasks = \App\Models\Task::with(['assignedUser', 'createdBy'])->orderByDesc('created_at')->get();
+        } else {
+            $tasks = auth()->user()->assignedTasks()->with('createdBy')->orderByDesc('created_at')->get();
+        }
+    }
+    return view('pages.tasks', compact('tasks'));
 })->name('tasks.index');
 
 Route::get('/dashboard', function () {
-    return view('pages.dashboard');
+    $user = auth()->user();
+    if ($user->isAdmin()) {
+        $totalTasks = \App\Models\Task::count();
+        $completedTasks = \App\Models\Task::where('status', 'completed')->count();
+        $pendingTasks = \App\Models\Task::where('status', 'pending')->count();
+        $overdueTasks = \App\Models\Task::where('status', '!=', 'completed')
+            ->whereNotNull('due_date')
+            ->where('due_date', '<', now())
+            ->count();
+        $recentTasks = \App\Models\Task::orderByDesc('created_at')->take(5)->get();
+    } else {
+        $totalTasks = $user->assignedTasks()->count();
+        $completedTasks = $user->completedTasks()->count();
+        $pendingTasks = $user->pendingTasks()->count();
+        $overdueTasks = $user->overdueTasks()->count();
+        $recentTasks = $user->assignedTasks()->orderByDesc('created_at')->take(5)->get();
+    }
+    return view('pages.dashboard', compact('totalTasks', 'completedTasks', 'pendingTasks', 'overdueTasks', 'recentTasks'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // User: Update status of assigned task
+    Route::patch('/tasks/{task}/status', [\App\Http\Controllers\TaskController::class, 'updateStatus'])->name('tasks.status.update');
 });
 
 Route::middleware(['auth', 'isAdmin'])->group(function () {
-    Route::get('/tasks/create', function () {
-        // Placeholder for task creation view
-        return 'Task creation form (admin only)';
-    })->name('tasks.create');
+    // Admin Task Management Routes (explicit, dot-named)
+    Route::get('/admin/tasks', [\App\Http\Controllers\TaskController::class, 'index'])->name('admin.tasks.index');
+    Route::get('/admin/tasks/create', [\App\Http\Controllers\TaskController::class, 'create'])->name('admin.tasks.create');
+    Route::post('/admin/tasks', [\App\Http\Controllers\TaskController::class, 'store'])->name('admin.tasks.store');
+    Route::get('/admin/tasks/{task}/edit', [\App\Http\Controllers\TaskController::class, 'edit'])->name('admin.tasks.edit');
+    Route::put('/admin/tasks/{task}', [\App\Http\Controllers\TaskController::class, 'update'])->name('admin.tasks.update');
+    Route::delete('/admin/tasks/{task}', [\App\Http\Controllers\TaskController::class, 'destroy'])->name('admin.tasks.destroy');
 
     // Admin User Management Routes
     Route::get('/admin/users', [\App\Http\Controllers\UserManagementController::class, 'index'])->name('admin.users.index');
