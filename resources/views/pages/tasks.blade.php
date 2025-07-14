@@ -22,7 +22,7 @@
         <!-- Admin: Task Management -->
         <div class="admin-controls">
             <a href="{{ route('tasks.create') }}" class="btn">Create New Task</a>
-            <a href="#" class="btn btn-secondary">Manage Users</a>
+            <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">Manage Users</a>
         </div>
         <div class="tasks-list">
             <h3>All Tasks</h3>

@@ -9,7 +9,7 @@
             <li><a href="{{ route('register') }}">Register</a></li>
         @else
             @if(auth()->user()->isAdmin())
-                <li><a href="#">Admin Panel</a></li>
+                <li><a href="{{ route('admin.users.index') }}">Manage Users</a></li>
             @endif
             <li><a href="#">Profile</a></li>
             <li>
