@@ -1,7 +1,3 @@
-@php
-    $isAdmin = false; // Change to false to test regular user UI
-@endphp
-
 @extends('layouts.app')
 
 @section('title', 'Dashboard - Task Manager')
@@ -32,7 +28,7 @@
         </div>
     </div>
 
-    @if($isAdmin)
+    @if(auth()->check() && auth()->user()->isAdmin())
         <!-- Admin Dashboard Actions -->
         <div class="dashboard-actions">
             <a href="{{ route('tasks.create') }}" class="btn">Create New Task</a>
@@ -52,7 +48,7 @@
         </div>
     </div>
 
-    @if($isAdmin)
+    @if(auth()->check() && auth()->user()->isAdmin())
         <!-- Admin Only: Quick Add Task Form -->
         <div class="task-form-section">
             <h3>Quick Add Task</h3>

@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Task;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,22 +16,25 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Create admin user
-        $admin = User::factory()->create([
+        $admin = User::create([
             'name' => 'Admin User',
             'email' => 'admin@example.com',
+            'password' => Hash::make('password'),
             'role' => 'admin',
         ]);
 
         // Create regular users
-        $user1 = User::factory()->create([
+        $user1 = User::create([
             'name' => 'John Doe',
             'email' => 'john@example.com',
+            'password' => Hash::make('password'),
             'role' => 'user',
         ]);
 
-        $user2 = User::factory()->create([
+        $user2 = User::create([
             'name' => 'Jane Smith',
             'email' => 'jane@example.com',
+            'password' => Hash::make('password'),
             'role' => 'user',
         ]);
 

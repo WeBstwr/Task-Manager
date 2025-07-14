@@ -1,5 +1,5 @@
 @php
-    $isAdmin = false; // Change to false to test regular user UI
+    // $isAdmin = $isAdmin ?? false; // Use passed variable or default to false
 @endphp
 
 @extends('layouts.app')
@@ -9,7 +9,7 @@
 @section('content')
 <div class="tasks-page">
     <div class="page-header">
-        @if($isAdmin)
+        @if(auth()->check() && auth()->user()->isAdmin())
             <h2>All Tasks</h2>
             <p>Manage and assign tasks to users</p>
         @else
@@ -18,94 +18,68 @@
         @endif
     </div>
 
-    @if($isAdmin)
+    @if(auth()->check() && auth()->user()->isAdmin())
         <!-- Admin: Task Management -->
         <div class="admin-controls">
             <a href="{{ route('tasks.create') }}" class="btn">Create New Task</a>
             <a href="#" class="btn btn-secondary">Manage Users</a>
         </div>
-
         <div class="tasks-list">
             <h3>All Tasks</h3>
-            <!-- Sample tasks for demonstration -->
-            <div class="task-item">
-                <div class="task-header">
-                    <h4 class="task-title">Complete Project Documentation</h4>
-                    <span class="priority priority-high">High</span>
-                    <span class="status status-pending">Pending</span>
-                </div>
-                <div class="task-meta">
-                    <span>Assigned to: John Doe</span>
-                    <span>Due: 2024-01-15</span>
-                    <span>Created by: Admin</span>
-                </div>
-                <div class="task-actions">
-                    <button class="btn btn-small">Edit</button>
-                    <button class="btn btn-small btn-secondary">Reassign</button>
-                </div>
-            </div>
-
-            <div class="task-item">
-                <div class="task-header">
-                    <h4 class="task-title">Review Code Changes</h4>
-                    <span class="priority priority-medium">Medium</span>
-                    <span class="status status-in-progress">In Progress</span>
-                </div>
-                <div class="task-meta">
-                    <span>Assigned to: Jane Smith</span>
-                    <span>Due: 2024-01-20</span>
-                    <span>Created by: Admin</span>
-                </div>
-                <div class="task-actions">
-                    <button class="btn btn-small">Edit</button>
-                    <button class="btn btn-small btn-secondary">Reassign</button>
-                </div>
-            </div>
+            @if(isset($tasks) && count($tasks) === 0)
+                <div class="alert alert-info">There are currently no tasks in the system.</div>
+            @else
+                <!-- Loop through tasks for admin -->
+                @foreach($tasks ?? [] as $task)
+                    <div class="task-item">
+                        <div class="task-header">
+                            <h4 class="task-title">{{ $task->title }}</h4>
+                            <span class="priority priority-{{ $task->priority }}">{{ ucfirst($task->priority) }}</span>
+                            <span class="status status-{{ $task->status }}">{{ ucfirst(str_replace('_', ' ', $task->status)) }}</span>
+                        </div>
+                        <div class="task-meta">
+                            <span>Assigned to: {{ $task->assignee_name ?? 'N/A' }}</span>
+                            <span>Due: {{ $task->due_date ?? '-' }}</span>
+                            <span>Created by: {{ $task->creator_name ?? 'Admin' }}</span>
+                        </div>
+                        <div class="task-actions">
+                            <button class="btn btn-small">Edit</button>
+                            <button class="btn btn-small btn-secondary">Reassign</button>
+                        </div>
+                    </div>
+                @endforeach
+            @endif
         </div>
     @else
         <!-- Regular User: My Tasks -->
         <div class="tasks-list">
             <h3>My Assigned Tasks</h3>
-            <!-- Sample tasks for demonstration -->
-            <div class="task-item">
-                <div class="task-header">
-                    <h4 class="task-title">Complete Project Documentation</h4>
-                    <span class="priority priority-high">High</span>
-                    <span class="status status-pending">Pending</span>
-                </div>
-                <div class="task-meta">
-                    <span>Due: 2024-01-15</span>
-                    <span>Assigned by: Admin</span>
-                </div>
-                <div class="task-actions">
-                    <select class="status-select">
-                        <option value="pending" selected>Pending</option>
-                        <option value="in_progress">In Progress</option>
-                        <option value="completed">Completed</option>
-                    </select>
-                    <button class="btn btn-small">Update Status</button>
-                </div>
-            </div>
-
-            <div class="task-item">
-                <div class="task-header">
-                    <h4 class="task-title">Review Code Changes</h4>
-                    <span class="priority priority-medium">Medium</span>
-                    <span class="status status-in-progress">In Progress</span>
-                </div>
-                <div class="task-meta">
-                    <span>Due: 2024-01-20</span>
-                    <span>Assigned by: Admin</span>
-                </div>
-                <div class="task-actions">
-                    <select class="status-select">
-                        <option value="pending">Pending</option>
-                        <option value="in_progress" selected>In Progress</option>
-                        <option value="completed">Completed</option>
-                    </select>
-                    <button class="btn btn-small">Update Status</button>
-                </div>
-            </div>
+            @if(isset($tasks) && count($tasks) === 0)
+                <div class="alert alert-info">You have zero tasks assigned.</div>
+            @else
+                <!-- Loop through tasks for user -->
+                @foreach($tasks ?? [] as $task)
+                    <div class="task-item">
+                        <div class="task-header">
+                            <h4 class="task-title">{{ $task->title }}</h4>
+                            <span class="priority priority-{{ $task->priority }}">{{ ucfirst($task->priority) }}</span>
+                            <span class="status status-{{ $task->status }}">{{ ucfirst(str_replace('_', ' ', $task->status)) }}</span>
+                        </div>
+                        <div class="task-meta">
+                            <span>Due: {{ $task->due_date ?? '-' }}</span>
+                            <span>Assigned by: {{ $task->creator_name ?? 'Admin' }}</span>
+                        </div>
+                        <div class="task-actions">
+                            <select class="status-select">
+                                <option value="pending" @if($task->status == 'pending') selected @endif>Pending</option>
+                                <option value="in_progress" @if($task->status == 'in_progress') selected @endif>In Progress</option>
+                                <option value="completed" @if($task->status == 'completed') selected @endif>Completed</option>
+                            </select>
+                            <button class="btn btn-small">Update Status</button>
+                        </div>
+                    </div>
+                @endforeach
+            @endif
         </div>
     @endif
 </div>
@@ -225,6 +199,16 @@
 .btn-small {
     padding: 0.25rem 0.5rem;
     font-size: 0.8rem;
+}
+
+.alert-info {
+    background-color: #e9f7fd;
+    color: #31708f;
+    border: 1px solid #bce8f1;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    text-align: center;
 }
 </style>
 @endsection 

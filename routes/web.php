@@ -1,34 +1,37 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+// use App\Http\Controllers\Auth\RegisterController; // Remove this line
 
-// Dashboard
+// Registration routes
+// Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+// Route::post('/register', [RegisterController::class, 'register']);
+
+// Default home route to dashboard
 Route::get('/', function () {
     return view('pages.dashboard');
 })->name('dashboard');
 
-// Task routes
+// Placeholder route for tasks.index
 Route::get('/tasks', function () {
     return view('pages.tasks');
 })->name('tasks.index');
 
-Route::get('/tasks/create', function () {
+Route::get('/dashboard', function () {
     return view('pages.dashboard');
-})->name('tasks.create');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
-// Auth routes (placeholder routes for now)
-Route::get('/login', function () {
-    return view('pages.dashboard');
-})->name('login');
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
 
-Route::get('/register', function () {
-    return view('pages.dashboard');
-})->name('register');
+Route::middleware(['auth', 'isAdmin'])->group(function () {
+    Route::get('/tasks/create', function () {
+        // Placeholder for task creation view
+        return 'Task creation form (admin only)';
+    })->name('tasks.create');
+});
 
-Route::get('/profile', function () {
-    return view('pages.dashboard');
-})->name('profile');
-
-Route::post('/logout', function () {
-    return redirect('/');
-})->name('logout');
+require __DIR__.'/auth.php';
